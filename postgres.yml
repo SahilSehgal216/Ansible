@@ -1,0 +1,91 @@
+---
+- hosts: localhost
+  remote_user: ansible
+  become: sudo
+  vars_prompt:
+  - name: postgresversion
+    prompt:  "postgresversion"
+    private: no
+
+  tasks:
+
+  - name: Install package
+    yum:
+       name: /tmp/pgdg-centos93-9.3-3.noarch.rpm 
+       state: present
+    when: postgresversion == "9.3"
+
+  - name: Yum Install package
+    yum:
+       name: pkg={{ item }}
+       state: latest
+    with_items:
+       - postgresql93-server
+       - postgresql93-contrib
+    when: postgresversion == "9.3"
+
+
+  - name: Install package
+    yum:
+       name: /tmp/pgdg-centos94-9.4-3.noarch.rpm
+       state: present
+    when: postgresversion == "9.4"
+
+  - name: Yum Install package
+    yum:
+       name: pkg={{ item }}
+       state: latest
+    with_items:
+       - postgresql94-server
+       - postgresql94-contrib
+    when: postgresversion == "9.4"
+
+  - name: Install package
+    yum:
+       name: /tmp/pgdg-centos95-9.5-3.noarch.rpm
+       state: present
+    when: postgresversion == "9.5"
+
+  - name: Yum Install package
+    yum:
+       name: pkg={{ item }}
+       state: latest
+    with_items:
+       - postgresql95-server
+       - postgresql95-contrib
+    when: postgresversion == "9.5"
+
+  - name: Install package
+    yum:
+       name: /tmp/pgdg-centos96-9.6-3.noarch.rpm
+       state: present
+    when: postgresversion == "9.6"
+
+  - name: Yum Install package
+    yum:
+       name: pkg={{ item }}
+       state: latest
+    with_items:
+       - postgresql96-server
+       - postgresql96-contrib
+    when: postgresversion == "9.6"
+    
+    
+   - name: Copy postgres files
+    copy: 
+       src: /tmp/pg_hba.conf && /tmp/postgressql.conf
+       dest: /var/lib/pgsql/{{ postgresversion }}/data/
+    
+   - name: Setting permision of pg_hba conf file
+    action: shell chmod -R 700 /var/lib/pgsql/{{ postgresversion }} && chown -R postgres.postgres /var/lib/pgsql/{{ postgresversion }}
+
+  - name: initialize postgresql
+    shell: service postgresql-{{ postgresversion }} initdb
+
+
+  - name: Start PostgreSQL and enable at boot
+    service:
+      name: "postgresql-{{ postgresversion }}"
+      state: started
+
+

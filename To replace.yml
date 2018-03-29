@@ -1,0 +1,34 @@
+---
+- hosts: HOstIP
+  user: ansible
+  become: yes
+  tasks:
+
+  - name: Taking backup of files
+    shell: rsync -avz {{ item }} {{ item }}.`date +%Y%m%d%H%M%S`
+    with_items:
+      - /tomcats/(Folder_name)/conf/Catalina/localhost/ROOT.xml
+      - /tomcats/(Folder_name)_listener/conf/Catalina/localhost/ROOT.xml
+      - /tomcats/ivs/conf/Catalina/localhost/ROOT.xml
+      - /tomcat_ce/conf/server.xml
+
+  - name: Replacing value in (Folder_name)
+    replace: dest=/tomcats/(Folder_name)/conf/Catalina/localhost/ROOT.xml regexp='maximumPoolSize="90"' replace='maximumPoolSize="75"'
+    ignore_errors: yes
+
+  - name: Replacing value in (Folder_name) Listener
+    replace: dest=/tomcats/(Folder_name)_listener/conf/Catalina/localhost/ROOT.xml regexp='maximumPoolSize="20"' replace='maximumPoolSize="40"'
+    ignore_errors: yes
+    register: echo
+
+  -  name: Replacing value in IVS
+     replace: dest=/tomcats/ivs/conf/Catalina/localhost/ROOT.xml regexp='maximumPoolSize="90"' replace='maximumPoolSize=50'
+     ignore_errors: yes
+
+  - name: Replacing value in Server
+    replace: dest=/tomcat_ce/conf/server.xml regexp='maxThreads="500"' replace='maxThreads="400"'
+    ignore_errors: yes
+
+  - name: Replacing value in Server
+    replace: dest=/tomcat_ce/conf/server.xml regexp='acceptCount="300"' replace='acceptCount="250"'
+    ignore_errors: yes
